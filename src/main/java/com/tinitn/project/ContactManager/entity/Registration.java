@@ -1,7 +1,12 @@
 package com.tinitn.project.ContactManager.entity;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 public class Registration {
 	
+	@NotBlank(message = "Name field is required")
+	@Size(min = 2,max = 20,message = "Min is 2 and max is 20")
 	private String name;
 	private String email;
 	private String password;
