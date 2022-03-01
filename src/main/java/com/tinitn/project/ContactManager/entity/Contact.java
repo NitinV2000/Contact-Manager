@@ -8,13 +8,15 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name="CONTACT")
 public class Contact {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int contactId;
+	private Integer contactId;
 	private String name;
 	private String secondName;
 	private String email;
@@ -25,18 +27,29 @@ public class Contact {
 	private String description;
 	
 	@ManyToOne
+	@JsonIgnore
 	private User user;
 	
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
 	public Contact() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	
+	
 
-	public int getContactId() {
+	public Integer getContactId() {
 		return contactId;
 	}
 
-	public void setContactId(int contactId) {
+	public void setContactId(Integer contactId) {
 		this.contactId = contactId;
 	}
 
@@ -95,5 +108,12 @@ public class Contact {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
+//	@Override
+//	public String toString() {
+//		return "Contact [contactId=" + contactId + ", name=" + name + ", secondName=" + secondName + ", email=" + email
+//				+ ", work=" + work + ", phone=" + phone + ", image=" + image + ", description=" + description
+//				+ ", user=" + user + "]";
+//	}
 	
 }
