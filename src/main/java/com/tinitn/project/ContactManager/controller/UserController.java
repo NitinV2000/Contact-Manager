@@ -6,9 +6,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.Principal;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -89,5 +92,20 @@ public class UserController {
 		}
 		contactRepo.save(contact);
 		return contact;
+	}
+	
+	@GetMapping("/show-contacts")
+	public List<Contact> getContacts(Principal principal){
+		String name = principal.getName();
+		User u = userRepo.getUserByUserName(name);
+		return contactRepo.findContactsByUser(u.getId());
+	}
+	
+	@GetMapping("/show-contacts/{page}")
+	public List<Contact> getContactsPage(@PathVariable("page") Integer page, Principal principal){
+		String name = principal.getName();
+		User u = userRepo.getUserByUserName(name);
+		Pageable p = PageRequest.of(page, 1);
+		return contactRepo.findContactsPageByUser(u.getId(),p).getContent();
 	}
 }

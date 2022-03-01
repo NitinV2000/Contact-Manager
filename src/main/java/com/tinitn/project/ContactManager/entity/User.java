@@ -19,7 +19,7 @@ public class User {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
+	private Integer id;
 	private String name;
 	@Column(unique = true)
 	private String email;
@@ -39,16 +39,13 @@ public class User {
 		// TODO Auto-generated constructor stub
 	}
 
-
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
-
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
-
 
 	public String getName() {
 		return name;
