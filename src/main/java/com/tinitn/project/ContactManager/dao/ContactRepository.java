@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.tinitn.project.ContactManager.entity.Contact;
+import com.tinitn.project.ContactManager.entity.User;
 
 @Repository
 public interface ContactRepository extends JpaRepository<Contact, Integer> {
@@ -19,4 +20,6 @@ public interface ContactRepository extends JpaRepository<Contact, Integer> {
 	
 	@Query("from Contact as c where c.user.id =:userId")
 	public Page<Contact> findContactsPageByUser(@Param("userId") Integer userId, Pageable p);
+	
+	public List<Contact> findContactByNameContainingAndUser(String keywords,User user);
 }

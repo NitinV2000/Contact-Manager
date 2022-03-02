@@ -183,4 +183,11 @@ public class UserController {
 		}
 		return contact;
 	}
+	
+	@GetMapping("/search/{query}")
+	public ResponseEntity<?> search(@PathVariable("query") String keywords,Principal principal){
+		String name = principal.getName();
+		User u = userRepo.getUserByUserName(name);
+		return ResponseEntity.ok(contactRepo.findContactByNameContainingAndUser(keywords, u));
+	}
 }
