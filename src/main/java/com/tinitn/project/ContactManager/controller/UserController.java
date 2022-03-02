@@ -1,6 +1,7 @@
 package com.tinitn.project.ContactManager.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -93,7 +94,6 @@ public class UserController {
 			System.out.println("Error: "+e.getMessage());
 			e.printStackTrace();
 		}
-//		contactRepo.save(contact);
 		return contact;
 	}
 	
@@ -123,17 +123,64 @@ public class UserController {
 	}
 	
 	@DeleteMapping("/{cId}/delete")
-	public ResponseEntity<?> deleteContactById(@PathVariable("cId") Integer id, Principal principal) {
+	public ResponseEntity<?> deleteContactById(@PathVariable("cId") Integer id, Principal principal) throws IOException {
 		String name = principal.getName();
 		User u = userRepo.getUserByUserName(name);
 		Contact c = contactRepo.findById(id).get();
 		if(u.getId()==c.getUser().getId())
 		{
 			c.setUser(null);
+			if(c.getImage()!=null) {
+				Path path1 = Paths.get(UPLOAD_FOLDER + c.getImage());
+				Files.delete(path1);
+				}
 			contactRepo.deleteById(id);
 			return new ResponseEntity<>("Deleted Contact",HttpStatus.OK);
 		}
 		else
 			return new ResponseEntity<>("Not possible",HttpStatus.NOT_FOUND);
+	}
+	
+	@PostMapping(value = "/update-contact")
+	public Contact updateContact(@ModelAttribute Payload payload, Principal principal) {
+		Contact contact = contactRepo.findById(Integer.valueOf(payload.getId())).get();
+		String name = principal.getName();
+		User u = userRepo.getUserByUserName(name);
+		contact.setName(payload.getName());
+		contact.setSecondName(payload.getSecondName());
+		contact.setEmail(payload.getEmail());
+		contact.setWork(payload.getWork());
+		contact.setDescription(payload.getDescription());
+		contact.setPhone(payload.getPhone());
+		try {
+		contact.setUser(u);
+		if(payload.getProfileImage()==null) {
+			System.out.println("No file chosen");
+		}
+		else {
+			if(contact.getImage()!=null) {
+			Path path1 = Paths.get(UPLOAD_FOLDER + contact.getImage());
+			Files.delete(path1);
+			}
+			contact.setImage(payload.getProfileImage().getOriginalFilename());
+//			File saveFile = new ClassPathResource("static/img").getFile();
+//			Path path = Paths.get(saveFile.getAbsolutePath()+File.separator+payload.getProfileImage().getOriginalFilename());
+//			Files.copy(payload.getProfileImage().getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+			
+//			Files.copy(payload.getProfileImage().getInputStream(), this.root.resolve(payload.getProfileImage().getOriginalFilename()));
+			
+			byte[] bytes = payload.getProfileImage().getBytes();
+			Path path = Paths.get(UPLOAD_FOLDER + payload.getProfileImage().getOriginalFilename());
+			Files.write(path, bytes);
+		}
+//		u.getContacts().add(contact);
+		this.contactRepo.save(contact);
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error: "+e.getMessage());
+			e.printStackTrace();
+		}
+		return contact;
 	}
 }

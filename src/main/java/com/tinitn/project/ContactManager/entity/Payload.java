@@ -3,6 +3,7 @@ package com.tinitn.project.ContactManager.entity;
 import org.springframework.web.multipart.MultipartFile;
 
 public class Payload {
+	private String id;
 	private String name;
 	private String secondName;
 	private String email;
@@ -52,6 +53,11 @@ public class Payload {
 	public void setProfileImage(MultipartFile profileImage) {
 		this.profileImage = profileImage;
 	}
-	
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
 	
 }
