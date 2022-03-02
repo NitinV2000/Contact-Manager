@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -83,14 +86,14 @@ public class UserController {
 			Files.write(path, bytes);
 		}
 		u.getContacts().add(contact);
-		this.userRepo.save(u);
+		this.contactRepo.save(contact);
 		}
 		catch (Exception e) {
 			// TODO: handle exception
 			System.out.println("Error: "+e.getMessage());
 			e.printStackTrace();
 		}
-		contactRepo.save(contact);
+//		contactRepo.save(contact);
 		return contact;
 	}
 	
@@ -107,5 +110,30 @@ public class UserController {
 		User u = userRepo.getUserByUserName(name);
 		Pageable p = PageRequest.of(page, 1);
 		return contactRepo.findContactsPageByUser(u.getId(),p).getContent();
+	}
+	
+	@GetMapping("/{cId}/contact")
+	public ResponseEntity<?> getContactById(@PathVariable("cId") Integer id, Principal principal) {
+		String name = principal.getName();
+		User u = userRepo.getUserByUserName(name);
+		if(u.getId()==contactRepo.findById(id).get().getUser().getId())
+			return new ResponseEntity<>(contactRepo.findById(id).get(),HttpStatus.OK);
+		else
+			return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
+	}
+	
+	@DeleteMapping("/{cId}/delete")
+	public ResponseEntity<?> deleteContactById(@PathVariable("cId") Integer id, Principal principal) {
+		String name = principal.getName();
+		User u = userRepo.getUserByUserName(name);
+		Contact c = contactRepo.findById(id).get();
+		if(u.getId()==c.getUser().getId())
+		{
+			c.setUser(null);
+			contactRepo.deleteById(id);
+			return new ResponseEntity<>("Deleted Contact",HttpStatus.OK);
+		}
+		else
+			return new ResponseEntity<>("Not possible",HttpStatus.NOT_FOUND);
 	}
 }
