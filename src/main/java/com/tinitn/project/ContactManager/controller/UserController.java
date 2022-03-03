@@ -15,11 +15,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,6 +37,9 @@ import com.tinitn.project.ContactManager.entity.User;
 @RestController
 @RequestMapping("/user")
 public class UserController {
+	
+	@Autowired
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
 	
 	@Autowired
 	private UserRepository userRepo;
@@ -189,5 +194,18 @@ public class UserController {
 		String name = principal.getName();
 		User u = userRepo.getUserByUserName(name);
 		return ResponseEntity.ok(contactRepo.findContactByNameContainingAndUser(keywords, u));
+	}
+	
+	@PutMapping("/change-password")
+	public ResponseEntity<?> changePassword(@RequestParam("old") String old,@RequestParam("new") String newPass, Principal principal){
+		String name = principal.getName();
+		User u = userRepo.getUserByUserName(name);
+		if(bCryptPasswordEncoder.matches(old, u.getPassword())) {
+			u.setPassword(bCryptPasswordEncoder.encode(newPass));
+			userRepo.save(u);
+			return ResponseEntity.ok("Password Updated");
+		}
+		else
+			return new ResponseEntity<>("Wrong Password",HttpStatus.BAD_REQUEST);
 	}
 }
